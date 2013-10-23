@@ -1,0 +1,40 @@
+<?php
+/**
+ * Implementation of hook_block_info().
+ */
+function currnav_block_info() {
+  $blocks = array();
+
+  $blocks['current_navigation'] = array(
+    'info' => t('Current navigation'),
+  );
+	return $blocks;
+}
+
+
+/**
+ * Implementation of hook_block_view().
+ */
+function currnav_block_view($delta = '') {
+  $block = array();
+  
+  switch ($delta) {
+    case 'current_navigation':
+	  $active_menu_tree = '';
+	  $menu_name = variable_get('menu_main_links_source', 'main-menu');
+	  $topmenu = menu_set_active_trail();
+	  $home = array_shift($topmenu);
+	  $toplevel = array_shift($topmenu);
+	  $menu_tree = menu_tree($menu_name);
+	  if (
+		isset($menu_tree[$toplevel['mlid']]['#below']) &&
+		($active_menu_tree = $menu_tree[$toplevel['mlid']]['#below']) &&
+		!empty($active_menu_tree)
+	  )
+	  $block['subject'] = $toplevel['link_title'];
+	  $block['content'] = $active_menu_tree;
+	  
+  }
+  
+  return $block;
+}
